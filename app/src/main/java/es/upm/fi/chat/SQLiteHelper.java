@@ -31,11 +31,11 @@ public class SQLiteHelper extends SQLiteOpenHelper{
 
     }
 
-    private static final String DATA_BASE_CREATE = "create table " +
+    private static final String DATA_BASE_CREATE = "CREATE TABLE " +
             TABLA_MENSAJES + "(" +
-            COLUMN_ID + " integer primary key autoincrement, " +
-            COLUMN_USER + " text not null, " +
-            COLUMN_MESSAGE + " text not null, " +
-            COLUMN_DATE + " text not null" ;
+            COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            COLUMN_USER + " TEXT, " +
+            COLUMN_MESSAGE + " TEXT, " +
+            COLUMN_DATE + " INTEGER)" ;
 
 }

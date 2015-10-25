@@ -3,4 +3,7 @@
 * TODO Database handler
 * TODO DatabaseManager write and read methods
 * TODO Read messages service (write in Database)
-* TODO Read from database (in Activity)
+* DONE Read from database (in Activity)
+* TODO Review date conversion
+* DONE Start service from activity
+* TODO Remove AsyncTask from reading messages

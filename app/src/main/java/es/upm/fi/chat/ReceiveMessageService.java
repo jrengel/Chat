@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -25,7 +26,7 @@ import java.util.List;
  */
 public class ReceiveMessageService extends IntentService {
 
-
+    public static final String ACTION_WRITE_DATABASE = "es.upm.fi.receivemessageservice.action.WRITE_DATABASE";
     private HttpURLConnection con; // Connection to receive messages
 
     /**
@@ -90,8 +91,19 @@ public class ReceiveMessageService extends IntentService {
             }
 
             //TODO: Add list objects in the database
+            SQLiteMessageManager databaseManager = new SQLiteMessageManager(getApplicationContext());
+            if (databaseManager.writeMessages(messagesList)){
+                Toast.makeText(getBaseContext(), "Mensajes escritos en la base de datos ", Toast.LENGTH_SHORT).show();
+            }
+
+            // sending intent to announce that service is done
+            Intent i = new Intent();
+            i.setAction(ACTION_WRITE_DATABASE);
+            sendBroadcast(i);
 
 
+
+            // sending pending intent to restart the service in 30 seconds
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {

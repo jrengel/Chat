@@ -1,5 +1,9 @@
 package es.upm.fi.chat;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -16,6 +20,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,10 +117,50 @@ public class MessagesActivity extends ActionBarActivity {
         }
     }
 
+    //Broadcast receiver that respond to service work
+    public class DataBaseReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(ReceiveMessageService.ACTION_WRITE_DATABASE)){
+                SQLiteMessageManager databaseManager = new SQLiteMessageManager(getApplicationContext());
+
+                List<Message> messagesList = null;
+                try {
+                    messagesList = databaseManager.readMessages();
+                } catch (SQLException e) {
+                    Toast.makeText(getBaseContext(), "Error en lectura de la base de datos :(", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+                ArrayList<String> showArray = new ArrayList<String>();
+                for(Message m: messagesList){
+                    showArray.add(m.getUser_origin() + ": " + m.getMessage());
+                }
+                if (showArray.size() == 0){
+                    Toast.makeText(getBaseContext(), "No hay mensajes nuevos", Toast.LENGTH_SHORT).show();
+                } else {
+                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, showArray);
+                    ListView lv = (ListView) findViewById(R.id.listView);
+                    lv.setAdapter(arrayAdapter);
+                }
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_messages);
+
+        //Starting Intent service that connects to server and gets messages
+        Intent intentService = new Intent(this, ReceiveMessageService.class);
+        startService(intentService);
+
+        // Registering broadcast receiver from intent service
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ReceiveMessageService.ACTION_WRITE_DATABASE);
+        DataBaseReceiver dataBaseReceiver = new DataBaseReceiver();
+        registerReceiver(dataBaseReceiver, filter);
 
 
 
